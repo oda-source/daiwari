@@ -1,5 +1,6 @@
-if (!window.location.href.includes('continuous') && !document.querySelector('form')) {
-  // 登録用のフォームが存在しないページでは動作させない
+// 登録フォーム（input_honbu_cd）が存在する部屋でのみ実行する
+if (!document.querySelector('select[name="input_honbu_cd"]') && !window.location.href.includes('continuous')) {
+  // 対象外のフレームでは動かさない
 } else {
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -31,7 +32,7 @@ if (!window.location.href.includes('continuous') && !document.querySelector('for
     panel.innerHTML = `
       <h4 style="margin:0 0 10px 0; color:#007bff;">Brain 自動登録ナビ</h4>
       <div id="ext-info-content" style="font-size:13px; line-height:1.5; margin-bottom:15px; color:#333;">
-        画面の読み込みとフォームの検出を待っています...
+        準備中...
       </div>
       <div style="display:flex; gap:10px;">
         <button id="ext-btn-ok" style="flex:1; padding:8px; background:#28a745; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">次へ（確認終了）</button>
@@ -53,14 +54,14 @@ if (!window.location.href.includes('continuous') && !document.querySelector('for
     inputElement.blur();
   }
 
-  // ドロップダウン（セレクトボックス）を値（value）または表示テキストで確実に選択する関数
-  function forceSelectValue(selectElement, targetText, targetValue) {
+  // ドロップダウンを確実に対象の値（value）で選択する関数
+  function forceSelectValue(selectElement, targetValue) {
     if (!selectElement) return;
     selectElement.focus();
     
     let matched = false;
     for (let i = 0; i < selectElement.options.length; i++) {
-      if (selectElement.options[i].value === targetValue || selectElement.options[i].text.includes(targetText)) {
+      if (selectElement.options[i].value === targetValue) {
         selectElement.selectedIndex = i;
         matched = true;
         break;
@@ -95,66 +96,54 @@ if (!window.location.href.includes('continuous') && !document.querySelector('for
     }
     const courseNumber = fileNameParts[1];
 
-    // 画面上のすべてのテキスト入力欄を取得（順番ベースでの確実な突合用）
-    const allTextInputs = Array.from(document.querySelectorAll('input[type="text"], input:not([type])'));
+    // --- 【解析に基づいたピンポイント自動入力】 ---
     
-    if (allTextInputs.length < 2) {
-      infoContent.innerHTML = "<b style='color:#dc3545;'>エラー: 入力フォームが検出できません。</b><br>ページを再読み込み(F5)してやり直してください。";
-      return;
-    }
-
-    // --- 【確定HTML解析に基づく自動入力】 ---
-    
-    // 1. 媒体コード（画面の最上部にある1番目のテキスト入力欄）
-    const mediaInput = allTextInputs[0];
+    // 1. 媒体コード（name="media_cd"）
+    const mediaInput = document.querySelector('input[name="media_cd"]');
     if (mediaInput) {
       forceInputValue(mediaInput, commonData.mediaCode);
     }
 
-    // 2. コース番号（画面最下部の「コース番号※」の横にある入力欄）
-    // デベロッパーツール画像より、name="course_no" または最後の方の入力欄
-    const courseInput = document.querySelector('input[name="course_no"]') || document.querySelector('input[name*="course"]') || allTextInputs[allTextInputs.length - 1];
+    // 2. コース番号（name="course_no"）
+    const courseInput = document.querySelector('input[name="course_no"]');
     if (courseInput) {
       forceInputValue(courseInput, courseNumber);
     }
 
-    // 3. 発送日（カレンダー横の入力欄、あるいはname="hassou_ymd"）
-    // テキスト入力欄の中から「例」というプレースホルダーがあるもの、または2026等の初期値が入っている欄を自動スキャン
-    const cleanDate = commonData.shipDate ? commonData.shipDate.replace(/-/g, '') : "";
-    const dateInput = document.querySelector('input[name="hassou_ymd"]') || document.getElementById('hassou_ymd') || allTextInputs.find(input => input.placeholder && input.placeholder.includes('例')) || allTextInputs[2];
-    if (dateInput && cleanDate) {
+    // 3. 発送日（name="hassou_ymd"）
+    const dateInput = document.querySelector('input[name="hassou_ymd"]');
+    if (dateInput && commonData.shipDate) {
+      const cleanDate = commonData.shipDate.replace(/-/g, ''); // YYYYMMDD形式に変換
       forceInputValue(dateInput, cleanDate);
     }
 
-    // 4. 部数
-    const volumeInput = document.querySelector('input[name="busu"]') || document.getElementById('busu') || allTextInputs[3];
+    // 4. 部数（name="busu"）
+    const volumeInput = document.querySelector('input[name="busu"]');
     if (volumeInput && commonData.volume) {
       forceInputValue(volumeInput, commonData.volume);
     }
 
-    // 5. 【固定値】営業本部 ➔ 画像の「input_honbu_cd」をピンポイント指定
-    const honbuSelect = document.querySelector('select[name="input_honbu_cd"]') || document.querySelector('select[name*="honbu"]') || document.querySelector('select');
-    forceSelectValue(honbuSelect, "メディア営業本部", "15");
-
-    // 6. 【固定値】出発地 ➔ 画像の「input_shuppatsu_cd」をピンポイント指定
-    const syuppatsuSelect = document.querySelector('select[name="input_shuppatsu_cd"]') || document.querySelector('select[name*="shuppatsu"]') || document.querySelectorAll('select')[1];
-    forceSelectValue(syuppatsuSelect, "関西", "02");
-
-    // 7. ファイル名表示欄（もし存在すれば）
-    const fileNameDisplayInput = document.querySelector('input[name="file_name"]') || document.querySelector('input[name*="file"]');
-    if (fileNameDisplayInput) {
-      forceInputValue(fileNameDisplayInput, currentFileName);
+    // 5. 【固定値】営業本部 ➔ メディア営業本部（値: 15）を選択
+    const honbuSelect = document.querySelector('select[name="input_honbu_cd"]');
+    if (honbuSelect) {
+      forceSelectValue(honbuSelect, "15");
     }
 
-    // サイト側JavaScriptの連動処理を少し待つ（0.5秒）
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 6. 【固定値】出発地 ➔ 関西（値: 02）を選択
+    const syuppatsuSelect = document.querySelector('select[name="input_shuppatsu_cd"]');
+    if (syuppatsuSelect) {
+      forceSelectValue(syuppatsuSelect, "02");
+    }
 
-    // ナビゲーションパネルのテキスト表示を更新
+    // サイト側JavaScriptの連動処理を少し待つ（0.4秒）
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    // ナビゲーションパネルの表示更新
     infoContent.innerHTML = `
       <b>処理中:</b> ${index + 1} / ${fileNames.length} 件目<br>
       <b>ファイル名:</b> <span style="color:#555;">${currentFileName}</span><br>
       <b>抽出コース番号:</b> <span style="color:#d9534f; font-weight:bold;">${courseNumber}</span><br><br>
-      <span style="color:#28a745; font-size:12px; font-weight:bold;">左側のフォームをご確認ください。<br>文字が自動入力され、営業本部と出発地が選択されていれば成功です！</span>
+      <span style="color:#28a745; font-size:12px; font-weight:bold;">左側のフォームをご確認ください。<br>媒体コード、コース番号、発送日、部数、そして営業本部（メディア営業本部）と出発地（関西）が自動入力されていれば大成功です！</span>
     `;
 
     return new Promise((resolve) => {
