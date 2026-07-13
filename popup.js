@@ -1,3 +1,14 @@
+// 【追加】もし通常のポップアップとして開かれたら、即座に独立した別ウィンドウで開き直す
+if (!window.location.search.includes('mode=window')) {
+  chrome.windows.create({
+    url: chrome.runtime.getURL("popup.html?mode=window"),
+    type: "popup",
+    width: 360,
+    height: 580
+  });
+  window.close(); // 元の消えちゃうポップアップは一瞬で閉じる
+}
+
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const statusText = document.getElementById('status');
@@ -34,13 +45,12 @@ startBtn.addEventListener('click', async () => {
 
   const fileNames = selectedFiles.map(file => file.name);
 
-  // 【変更点】拡張機能を起動した「元のBrain画面」のタブを探す
-  const tabs = await chrome.tabs.query({ currentWindow: true });
-  // ポップアップ自身ではない、かつBrainのURLを含んでいるタブを探す
-  const brainTab = tabs.find(t => t.url && (t.url.includes('hankyu') || t.url.includes('localhost')));
+  // 拡張機能を起動した「元のBrain画面」のタブを探す
+  const tabs = await chrome.tabs.query({});
+  const brainTab = tabs.find(t => t.url && t.url.includes('brain.hankyu-travel.com'));
   
   if (!brainTab) {
-    alert('Brainの管理画面が見つかりません。画面を開いた状態で実行してください。');
+    alert('Brainの管理画面（brain.hankyu-travel.com）が見つかりません。画面を開いた状態で実行してください。');
     return;
   }
 
@@ -55,7 +65,7 @@ startBtn.addEventListener('click', async () => {
     }
   }, (response) => {
     if (chrome.runtime.lastError) {
-      alert('自動化スクリプトの起動に失敗しました。ページを再読み込みしてください。');
+      alert('自動化スクリプトの起動に失敗しました。Brainのページを一度再読み込み（F5）してから再度お試しください。');
     } else {
       // 処理が始まったらこの入力窓は閉じる
       window.close();
