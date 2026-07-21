@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- Trelloのシステムと通信するためだけの裏方ファイルです -->
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+</head>
+<body>
+  <script>
+    TrelloPowerUp.initialize({
+      'board-buttons': function (t, options) {
+        return [{
+          icon: 'https://p.trellocdn.com/images/power-up-icon-gray.svg',
+          text: '台割ビュー2',
+          callback: function (t) {
+            // ボタンが押されたら、画面用の daiwariview2.html を開く命令
+            return t.modal({
+              url: './daiwariview2.html',
+              fullscreen: true,
+              title: '【極】台割り配置図 2'
+            });
+          }
+        }];
+      },
+      'show-settings': function (t, options) {
+        return t.popup({
+          title: '台割ビュー2 設定',
+          url: './daiwariview2.html',
+          height: 200
+        });
+      }
+    });
+  </script>
+</body>
+</html>
