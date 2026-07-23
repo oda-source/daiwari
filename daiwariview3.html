@@ -24,7 +24,6 @@
     .title-zone { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     h1 { font-size: 16px; margin: 0; color: #0079bf; white-space: nowrap; }
     
-    /* 🌟 ボタンのサイズアップとデザイン共通調整 */
     .history-btn { 
       background: #e2e8f0; 
       color: #a0aec0; 
@@ -41,7 +40,6 @@
       white-space: nowrap; 
     }
     
-    /* 戻るボタン (有効時：オレンジ) */
     .undo-btn.active { 
       background: #ff9f43; 
       color: white; 
@@ -51,7 +49,6 @@
     }
     .undo-btn.active:hover { background: #ee5a24; }
     
-    /* 🌟 進むボタン (有効時：青) */
     .redo-btn.active { 
       background: #0079bf; 
       color: white; 
@@ -68,7 +65,23 @@
     
     .daiwari-grid { display: grid; grid-template-columns: repeat(8, 1fr); column-gap: 13px; row-gap: 17px; }
     
-    .page-box { background: #fff; border: 2px dashed #666; border-radius: 4px; min-height: 160px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; position: relative; transition: background 0.15s ease; }
+    /* 🌟 ページ枠：横並び要素を正しく収める flex 設定 */
+    .page-box { 
+      background: #fff; 
+      border: 2px dashed #666; 
+      border-radius: 4px; 
+      min-height: 160px; 
+      padding: 4px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+      display: flex; 
+      flex-wrap: wrap; 
+      align-content: flex-start; 
+      justify-content: space-between; 
+      gap: 4px; 
+      position: relative; 
+      transition: background 0.15s ease; 
+      box-sizing: border-box;
+    }
     .page-box.mihiraki-combined { grid-column: span 2; border: 2px solid #0079bf; background: #fafbfc; gap: 2px; padding: 4px; }
     
     .page-box.pair-left { margin-right: -13px; padding-right: 7px; z-index: 2; }
@@ -77,15 +90,22 @@
     .page-box.drag-over { background: #e6f7ff !important; border: 2px dashed #0079bf !important; }
     .page-title { width: 100%; font-weight: bold; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 2px; margin-bottom: 2px; color: #5e6c84; text-align: center; pointer-events: none; }
     
-    .trello-card { background: #fff; border: 1px solid #ced4da; border-radius: 4px; padding: 0 0 4px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 11px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; position: relative; cursor: grab !important; margin-bottom: 4px; user-select: none; }
+    .trello-card { background: #fff; border: 1px solid #ced4da; border-radius: 4px; padding: 0 0 4px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 11px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; position: relative; cursor: grab !important; margin-bottom: 4px; user-select: none; box-sizing: border-box; }
     .trello-card:active { cursor: grabbing !important; }
     .trello-card.dragging { opacity: 0.4; border: 1px dashed #999; }
     .trello-card.selected { border: 2px solid #0079bf !important; background: #e6f7ff !important; box-shadow: 0 0 8px rgba(0,121,191,0.4); }
 
+    /* 大文字（A,B,C）＝ 縦積み（100%幅） */
     .trello-card.layout-vertical { flex: 1 1 100%; width: 100%; min-height: 84px; }
-    .trello-card.layout-horizontal { flex: 1 1 calc(50% - 4px); width: calc(50% - 4px); }
+    
+    /* 🌟 小文字（a,b,c）＝ 強制横並び（約50%幅） */
+    .trello-card.layout-horizontal { 
+      flex: 0 0 calc(50% - 3px) !important; 
+      width: calc(50% - 3px) !important; 
+      max-width: calc(50% - 3px) !important; 
+    }
 
-    .card-area-badge { display: block; font-size: 14px; font-weight: bold; padding: 4px 6px; text-align: center; color: #172b4d; background: #dfe1e6; pointer-events: none; cursor: inherit; line-height: 1.2; }
+    .card-area-badge { display: block; font-size: 14px; font-weight: bold; padding: 4px 2px; text-align: center; color: #172b4d; background: #dfe1e6; pointer-events: none; cursor: inherit; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .area-東北 { background: #ffe166 !important; color: #403000 !important; }
     .area-北海道 { background: #b3ffcc !important; color: #005c1e !important; }
     .area-関東 { background: #ffbdad !important; color: #5c0000 !important; }
@@ -102,22 +122,22 @@
     .area-年末年始 { background: #ff91b4 !important; color: #ffffff !important; }
     .area-祭り { background: #ff9f43 !important; color: #ffffff !important; }
     
-    .card-content { padding: 4px 6px 0 6px; flex: 1; display: flex; flex-direction: column; pointer-events: none; cursor: inherit; justify-content: space-between; }
+    .card-content { padding: 4px 4px 0 4px; flex: 1; display: flex; flex-direction: column; pointer-events: none; cursor: inherit; justify-content: space-between; }
     
-    .card-name-wrapper { position: relative; padding-right: 18px; margin: 2px 0; cursor: inherit; display: flex; align-items: center; min-height: 34px; }
-    .card-name { font-weight: bold; line-height: 1.2; color: #253858; word-break: break-all; font-size: 13px; cursor: inherit; display: inline-flex; align-items: center; gap: 4px; width: 100%; }
+    .card-name-wrapper { position: relative; padding-right: 14px; margin: 2px 0; cursor: inherit; display: flex; align-items: center; min-height: 34px; }
+    .card-name { font-weight: bold; line-height: 1.2; color: #253858; word-break: break-all; font-size: 12px; cursor: inherit; display: inline-flex; align-items: center; gap: 2px; width: 100%; }
     .edit-pencil-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: #0079bf; cursor: pointer !important; font-size: 10px; font-weight: bold; pointer-events: auto; }
     .edit-pencil-btn:hover { text-decoration: underline; }
     
-    .badge-info-line { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11px; margin-top: 4px; margin-bottom: 2px; }
-    .badge-label-item { padding: 1px 4px; border-radius: 3px; font-weight: bold; display: inline-block; white-space: nowrap; font-size: 10px; }
+    .badge-info-line { display: flex; flex-wrap: wrap; gap: 2px; font-size: 10px; margin-top: 2px; margin-bottom: 2px; }
+    .badge-label-item { padding: 1px 3px; border-radius: 3px; font-weight: bold; display: inline-block; white-space: nowrap; font-size: 10px; }
     .badge-tantou { background: #e6fcff; color: #006677; border: 1px solid #b3f0ff; }
     
     .badge-sekiryou { background: #2f3542; color: #ffffff; }
     .badge-kouryou { background: #2ed573; color: #ffffff; }
 
-    .card-footer { display: flex; justify-content: flex-end; margin-top: 4px; padding: 2px 4px 0 4px; border-top: 1px dashed #ebecf0; pointer-events: none; cursor: inherit; }
-    .card-member { font-size: 11px; color: #5e6c84; background: #ebecf0; padding: 1px 3px; border-radius: 2px; font-weight: bold; cursor: inherit; }
+    .card-footer { display: flex; justify-content: flex-end; margin-top: 2px; padding: 2px 2px 0 2px; border-top: 1px dashed #ebecf0; pointer-events: none; cursor: inherit; }
+    .card-member { font-size: 10px; color: #5e6c84; background: #ebecf0; padding: 1px 2px; border-radius: 2px; font-weight: bold; cursor: inherit; }
     
     .board-approval-section { grid-column: span 5; background: #ffffff; border: 3px solid #0079bf; border-radius: 6px; padding: 12px 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 10px; align-self: start; }
     .board-approval-title { font-size: 18px; font-weight: bold; color: #0079bf; margin: 0; border-bottom: 2px solid #ebecf0; padding-bottom: 6px; }
@@ -140,9 +160,7 @@
   <div class="header-area">
     <div class="title-zone">
       <h1 id="boardTitle">【極】台割り配置図 3</h1>
-      <!-- 🌟 大きめの「戻る」ボタン -->
       <button id="undoBtn" class="history-btn undo-btn" onclick="executeUndo()">↩️ 戻る (<span id="undoCount">0</span>)</button>
-      <!-- 🌟 新設「進む」ボタン -->
       <button id="redoBtn" class="history-btn redo-btn" onclick="executeRedo()">↪️ 進む (<span id="redoCount">0</span>)</button>
     </div>
     <div class="page-setter">
@@ -184,7 +202,6 @@
     let currentTrelloUserFullName = "";
     let uniqueTantouNames = new Set();
     
-    /* 🌟 戻る・進む用のスタック設定 */
     let undoStack = []; 
     let redoStack = []; 
     const MAX_UNDO_DEPTH = 10;
@@ -232,7 +249,6 @@
       Promise.all(promises).then(function() { selectedCardIds.clear(); renderCombinedGrid(); });
     }
 
-    /* 🌟 操作時のスナップショット作成（新しい操作があったら進むスタックをクリア） */
     function pushUndoSnapshot() {
       if (!cardList || cardList.length === 0) return;
       const snapshot = cardList.map(c => ({
@@ -242,15 +258,13 @@
       }));
       undoStack.push(snapshot);
       if (undoStack.length > MAX_UNDO_DEPTH) { undoStack.shift(); }
-      redoStack = []; // 新しい操作があったら進む履歴をリセット
+      redoStack = []; 
       updateHistoryButtonsUI();
     }
 
-    /* 🌟 「戻る」実行関数 */
     function executeUndo() {
       if (undoStack.length === 0) return;
       
-      // 現在の状態を redoStack に保存
       const currentSnapshot = cardList.map(c => ({
         id: c.id,
         page: c.customPageNumValue,
@@ -262,11 +276,9 @@
       applyStateSnapshot(previousState);
     }
 
-    /* 🌟 「進む（やり直し）」実行関数 */
     function executeRedo() {
       if (redoStack.length === 0) return;
       
-      // 現在の状態を undoStack に保存
       const currentSnapshot = cardList.map(c => ({
         id: c.id,
         page: c.customPageNumValue,
@@ -278,7 +290,6 @@
       applyStateSnapshot(nextState);
     }
 
-    /* 🌟 スナップショットの適用共通関数 */
     function applyStateSnapshot(stateArray) {
       const promises = stateArray.map(hist => {
         return t.set(hist.id, 'shared', 'daiwari_page_num', hist.page).then(function() {
@@ -292,7 +303,6 @@
       Promise.all(promises).then(function() { updateHistoryButtonsUI(); renderCombinedGrid(); });
     }
 
-    /* 🌟 戻る・進むボタンの見た目を更新 */
     function updateHistoryButtonsUI() {
       const undoBtn = document.getElementById('undoBtn');
       const undoCounter = document.getElementById('undoCount');
